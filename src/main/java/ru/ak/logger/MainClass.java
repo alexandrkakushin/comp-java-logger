@@ -1,5 +1,5 @@
 
-package ru.ak.sftpclient;
+package ru.ak.logger;
 
 import ru.ak.info.InfoService;
 
@@ -21,7 +21,7 @@ public class MainClass {
     
     public static Logger getInstanceLogger() {
         if (logger == null) {
-            logger = Logger.getLogger("ru.ak.sftpclient");
+            logger = Logger.getLogger("ru.ak.logger");
         }
         return logger;
     }
@@ -38,14 +38,14 @@ public class MainClass {
                 }                
                 logger.setLevel(Level.ALL);
                 final int LOG_ROTATION_COUNT = 10;
-                Handler handler = new FileHandler("%h/logs/sftpclient/sftpclient.log", 0, LOG_ROTATION_COUNT);
+                Handler handler = new FileHandler("%h/logs/logger/logger.log", 0, LOG_ROTATION_COUNT);
                 logger.addHandler(handler);
             } catch (IOException ex) {
                 logger.log(Level.SEVERE, "Can't create log file handler", ex);
             }            
         }
                
-        String port = "48802"; // default
+        String port = "48804"; // default
         if (args.length == 2) {
             if (args[0].equalsIgnoreCase("-p")) {
             	port = args[1];
@@ -67,13 +67,13 @@ public class MainClass {
     
     private static boolean createLogDir() { 
         String userHome = System.getProperty("user.home");
-        File logDir = new File(userHome + "/logs/sftpclient");
+        File logDir = new File(userHome + "/logs/logger");
         
         return logDir.mkdirs();
     }
     
     private static boolean existLogDir() {
-        File logDir = new File(System.getProperty("user.home") + "/logs/sftpclient/");
+        File logDir = new File(System.getProperty("user.home") + "/logs/logger/");
         return logDir.isDirectory();
     }
 }
