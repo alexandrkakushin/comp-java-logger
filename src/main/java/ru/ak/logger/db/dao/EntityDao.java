@@ -8,9 +8,9 @@ import java.sql.SQLException;
  */
 public interface EntityDao<T, Id extends Serializable> {
 
-    T create() throws SQLException;
+    T create(T entity) throws SQLException;
 
-    void update(T entiry) throws SQLException;
+    void update(T entity) throws SQLException;
 
     void delete(T entity) throws SQLException;
 

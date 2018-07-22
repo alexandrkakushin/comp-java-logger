@@ -1,11 +1,10 @@
 package ru.ak.logger.db;
 
-import org.apache.commons.dbcp2.BasicDataSource;
 import ru.ak.logger.MainClass;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.logging.Logger;
 
 /**
@@ -15,22 +14,33 @@ public class DbUtility {
 
     private static Logger logger = MainClass.getInstanceLogger();
 
-    public static void init(LoggerDataSource dataSource) throws SQLException {
-        // create table "INFOBASES"
-        String sql =
-            "CREATE TABLE infobases (\n" +
-            " id integer PRIMARY KEY,\n" +
-            " name text NOT NULL UNIQUE);";
+    public static void init(LoggerDataSource loggerDataSource) throws SQLException {
+        String sqlLevels =
+            "CREATE TABLE IF NOT EXISTS levels (" +
+            "id integer PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+            "name text NOT NULL UNIQUE);";
 
-        logger.info("Create table: 'INFOBASES'");
-        try (BasicDataSource basicDataSource = dataSource.getBasicDataSource();
-             Connection connection = basicDataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        String sqlObjects =
+            "CREATE TABLE IF NOT EXISTS objects (" +
+            "id integer PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+            "name text NOT NULL UNIQUE); ";
 
-            statement.execute();
+        String sqlMessages =
+            "CREATE TABLE IF NOT EXISTS messages (" +
+            "id integer PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+            "id_level integer NOT NULL, " +
+            "id_object integer NOT NULL, " +
+            "text text);";
 
+        try (Connection connection = loggerDataSource.getBasicDataSource().getConnection();
+             Statement statement = connection.createStatement()) {
+
+            statement.addBatch(sqlLevels);
+            statement.addBatch(sqlObjects);
+            statement.addBatch(sqlMessages);
+            statement.executeBatch();
         } catch (Exception ex) {
-            logger.warning("Error; " + ex.getLocalizedMessage());
+            logger.warning("Check tables error; " + ex.getLocalizedMessage());
         }
     }
 }
