@@ -1,5 +1,10 @@
 package ru.ak.logger.db.connection;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 /**
  * @author a.kakushin
  */
@@ -34,5 +39,15 @@ public class SqliteConnection implements DbConnection {
     @Override
     public int hashCode() {
         return fileName != null ? fileName.hashCode() : 0;
+    }
+
+    public static Long getLastRowId(Connection connection) throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            ResultSet generatedKeys = statement.executeQuery("SELECT last_insert_rowid()");
+            if (generatedKeys.next()) {
+                return generatedKeys.getLong(1);
+            }
+        }
+        return null;
     }
 }

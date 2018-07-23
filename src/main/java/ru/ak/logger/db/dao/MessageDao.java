@@ -1,57 +1,90 @@
 package ru.ak.logger.db.dao;
 
 import ru.ak.logger.db.LoggerDataSource;
+import ru.ak.logger.model.Level;
 import ru.ak.logger.model.Message;
+import ru.ak.logger.model.ObjectLog;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author a.kakushin
  */
-public class MessageDao implements EntityDao<Message, Long> {
+public class MessageDao extends AbstractSqliteDao<Message, Long> {
 
     private LoggerDataSource loggerDataSource;
 
     public MessageDao(LoggerDataSource loggerDataSource) {
+        super(loggerDataSource);
         this.loggerDataSource = loggerDataSource;
     }
 
+    private static final SimpleDateFormat SQLITE_DATETIME_FORMAT =
+            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
     @Override
-    public Message create(Message entity) throws SQLException {
-        Message messageDb = new Message();
+    protected PreparedStatement preparedStatementCreate(Connection connection, Message object) throws SQLException {
+        String sql =
+            "INSERT INTO messages (period, id_level, id_object, text) " +
+            "VALUES (?, ?, ?, ?);";
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setString(1, SQLITE_DATETIME_FORMAT.format(new Date()));
+        statement.setLong(2, object.getLevel().getId());
+        statement.setLong(3, object.getLevel().getId());
+        statement.setString(4, object.getText());
 
-        String sqlInsert = "INSERT INTO messages (id_level, id_object, text) VALUES (?, ?, ?);";
-        try (Connection connection = loggerDataSource.getBasicDataSource().getConnection();
-             PreparedStatement statement = connection.prepareStatement(sqlInsert)) {
+        return statement;
+    }
 
-            statement.setLong(1, entity.getLevel().getId());
-            statement.setLong(2, entity.getObjectLog().getId());
-            statement.setString(3, entity.getText());
+    public Iterable<Message> findByPeriodBetween(Date from, Date to) throws SQLException, ParseException {
+        String sql =
+            "SELECT\n" +
+            "  messages.id AS id,\n" +
+            "  messages.period AS period,\n" +
+            "  messages.id_level AS id_level,\n" +
+            "  levels.name AS name_level,\n" +
+            "  messages.id_object AS id_object,\n" +
+            "  objects.name AS name_object,\n" +
+            "  messages.text AS text\n" +
+            "\n" +
+            "FROM messages\n" +
+            "  LEFT JOIN objects ON objects.id = id_object\n" +
+            "  LEFT JOIN levels ON levels.id = id_level\n" +
+            "WHERE messages.period BETWEEN ? and ?\n" +
+            "ORDER BY messages.period;";
 
-            messageDb.setId(Long.valueOf(statement.executeUpdate()));
+        try (Connection connection = loggerDataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, SQLITE_DATETIME_FORMAT.format(from));
+            statement.setString(2, SQLITE_DATETIME_FORMAT.format(to));
+
+            List<Message> messages = new ArrayList<>();
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                messages.add(
+                    new Message(
+                        rs.getLong("id"),
+                        SQLITE_DATETIME_FORMAT.parse(rs.getString("period")),
+                        new ObjectLog(
+                                rs.getLong("id_object"),
+                                rs.getString("name_object")),
+                        new Level(
+                                rs.getLong("id_level"),
+                                rs.getString("name_level")),
+                        rs.getString("text")
+                    )
+                );
+            }
+            return messages;
         }
-        return messageDb;
-    }
-
-    @Override
-    public void update(Message entity) throws SQLException {
-
-    }
-
-    @Override
-    public void delete(Message entity) throws SQLException {
-
-    }
-
-    @Override
-    public Message getById(Long id) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Iterable<Message> findAll() throws SQLException {
-        return null;
     }
 }

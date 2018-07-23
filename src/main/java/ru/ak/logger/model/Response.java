@@ -1,10 +1,10 @@
 package ru.ak.logger.model;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.*;
+import java.io.Serializable;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Response {
+public class Response implements Serializable {
 
 	private Object object;
 	private boolean error;
@@ -19,11 +19,11 @@ public class Response {
 		this.description = description;
 	}
 
-	public Object getResult() {
+	public Object getObject() {
 		return object;
 	}
 
-	public void setResult(Object object) {
+	public void setObject(Object object) {
 		this.object = object;
 	}
 

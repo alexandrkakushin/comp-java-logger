@@ -5,6 +5,8 @@ import ru.ak.logger.MainClass;
 import ru.ak.logger.db.connection.DbConnection;
 import ru.ak.logger.db.connection.SqliteConnection;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.logging.Logger;
 
 /**
@@ -34,5 +36,9 @@ public class LoggerDataSource {
 
     public BasicDataSource getBasicDataSource() {
         return this.dataSource;
+    }
+
+    public Connection getConnection() throws SQLException {
+        return this.getBasicDataSource().getConnection();
     }
 }

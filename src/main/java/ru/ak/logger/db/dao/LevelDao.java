@@ -11,65 +11,43 @@ import java.sql.SQLException;
 /**
  * @author a.kakushin
  */
-public class LevelDao implements EntityDao<Level, Long>{
-
-    private LoggerDataSource loggerDataSource;
+public class LevelDao extends AbstractSqliteDao<Level, Long> {
 
     public LevelDao(LoggerDataSource loggerDataSource) {
-        this.loggerDataSource = loggerDataSource;
+        super(loggerDataSource);
     }
 
     @Override
-    public Level create(Level level) throws SQLException {
-        Level levelDb = new Level();
+    protected PreparedStatement preparedStatementCreate(Connection connection, Level object) throws SQLException {
+        String sql = "INSERT INTO levels (name) VALUES (?);";
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setString(1, object.getName());
 
-        String sqlInsert = "INSERT INTO levels (name) VALUES (?);";
-        try (Connection connection = loggerDataSource.getBasicDataSource().getConnection();
-             PreparedStatement statement = connection.prepareStatement(sqlInsert)) {
-
-            statement.setString(1, level.getName());
-
-            levelDb.setId(Long.valueOf(statement.executeUpdate()));
-            levelDb.setName(level.getName());
-        }
-        return levelDb;
+        return statement;
     }
 
     @Override
-    public void update(Level entity) throws SQLException {
+    protected PreparedStatement preparedStatementFindByName(Connection connection, String name) throws SQLException {
+        String sql = "SELECT id, name FROM levels WHERE name = ?;";
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setString(1, name);
 
+        return statement;
     }
 
     @Override
-    public void delete(Level entity) throws SQLException {
+    protected PreparedStatement preparedStatementFindAll(Connection connection) throws SQLException {
+        String sql = "SELECT id, name FROM levels;";
+        PreparedStatement statement = connection.prepareStatement(sql);
 
+        return statement;
     }
 
     @Override
-    public Level getById(Long id) throws SQLException {
-        return null;
-    }
-
-    public Level findByName(String name) throws SQLException {
-        String sql =
-            "SELECT id, name FROM levels WHERE name = ?";
-
-        try (Connection connection = loggerDataSource.getBasicDataSource().getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
-            statement.setString(1, name);
-            ResultSet rs = statement.executeQuery();
-            if (rs.next()) {
-                return new Level(
-                        rs.getLong("id"),
-                        rs.getString("name"));
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public Iterable<Level> findAll() throws SQLException {
-        return null;
+    protected Level parseObjectDb(ResultSet resultSet)  throws SQLException{
+        return new Level(
+                resultSet.getLong("id"),
+                resultSet.getString("name")
+        );
     }
 }

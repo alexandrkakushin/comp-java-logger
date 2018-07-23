@@ -2,9 +2,7 @@ package ru.ak.logger.db;
 
 import ru.ak.logger.MainClass;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.logging.Logger;
 
 /**
@@ -28,6 +26,7 @@ public class DbUtility {
         String sqlMessages =
             "CREATE TABLE IF NOT EXISTS messages (" +
             "id integer PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+            "period text NOT NULL, " +
             "id_level integer NOT NULL, " +
             "id_object integer NOT NULL, " +
             "text text);";
@@ -43,4 +42,5 @@ public class DbUtility {
             logger.warning("Check tables error; " + ex.getLocalizedMessage());
         }
     }
+
 }

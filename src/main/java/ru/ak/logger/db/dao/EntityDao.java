@@ -6,15 +6,11 @@ import java.sql.SQLException;
 /**
  * @author a.kakushin
  */
-public interface EntityDao<T, Id extends Serializable> {
+public interface EntityDao<T, ID extends Serializable> {
 
-    T create(T entity) throws SQLException;
+    ID create(T entity) throws SQLException;
 
-    void update(T entity) throws SQLException;
-
-    void delete(T entity) throws SQLException;
-
-    T getById(Id id) throws SQLException;
+    T findByName(String name) throws SQLException;
 
     Iterable<T> findAll() throws SQLException;
 }
