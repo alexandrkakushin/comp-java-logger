@@ -38,7 +38,7 @@ public class MessageDao extends AbstractSqliteDao<Message, Long> {
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setString(1, SQLITE_DATETIME_FORMAT.format(new Date()));
         statement.setLong(2, object.getLevel().getId());
-        statement.setLong(3, object.getLevel().getId());
+        statement.setLong(3, object.getObjectLog().getId());
         statement.setString(4, object.getText());
 
         return statement;
