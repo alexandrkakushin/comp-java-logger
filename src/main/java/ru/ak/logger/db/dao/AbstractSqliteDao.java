@@ -31,6 +31,10 @@ public abstract class AbstractSqliteDao<T, ID extends Serializable> implements E
         return null;
     }
 
+    protected PreparedStatement preparedStatementClear(Connection connection) throws SQLException {
+        return  null;
+    }
+
     protected T parseObjectDb(ResultSet resultSet) throws SQLException {
         return null;
     }
@@ -72,6 +76,14 @@ public abstract class AbstractSqliteDao<T, ID extends Serializable> implements E
                 result.add(parseObjectDb(rs));
             }
             return result;
+        }
+    }
+
+    @Override
+    public void clear() throws SQLException {
+        try (Connection connection = loggerDataSource.getBasicDataSource().getConnection();
+            PreparedStatement statement = preparedStatementClear(connection)) {
+            statement.execute();
         }
     }
 }

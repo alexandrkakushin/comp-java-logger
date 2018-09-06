@@ -45,6 +45,14 @@ public class ObjectLogDao extends AbstractSqliteDao<ObjectLog, Long> {
     }
 
     @Override
+    protected PreparedStatement preparedStatementClear(Connection connection) throws SQLException {
+        String sql = "DELETE FROM objects";
+        PreparedStatement statement = connection.prepareStatement(sql);
+
+        return statement;
+    }
+
+    @Override
     protected ObjectLog parseObjectDb(ResultSet resultSet)  throws SQLException{
         return new ObjectLog(
                 resultSet.getLong("id"),

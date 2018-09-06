@@ -44,10 +44,19 @@ public class LevelDao extends AbstractSqliteDao<Level, Long> {
     }
 
     @Override
+    protected PreparedStatement preparedStatementClear(Connection connection) throws SQLException {
+        String sql = "DELETE FROM levels";
+        PreparedStatement statement = connection.prepareStatement(sql);
+
+        return statement;
+    }
+
+    @Override
     protected Level parseObjectDb(ResultSet resultSet)  throws SQLException{
         return new Level(
                 resultSet.getLong("id"),
                 resultSet.getString("name")
         );
     }
+
 }

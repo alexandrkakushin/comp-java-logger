@@ -44,6 +44,14 @@ public class MessageDao extends AbstractSqliteDao<Message, Long> {
         return statement;
     }
 
+    @Override
+    protected PreparedStatement preparedStatementClear(Connection connection) throws SQLException {
+        String sql = "DELETE FROM messages";
+        PreparedStatement statement = connection.prepareStatement(sql);
+
+        return statement;
+    }
+
     public Iterable<Message> findByPeriodBetween(Date from, Date to) throws SQLException, ParseException {
         String sql =
             "SELECT\n" +

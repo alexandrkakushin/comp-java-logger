@@ -64,6 +64,25 @@ public class UniLogger {
         return (List<Message>) messageDao.findByPeriodBetween(from, to);
     }
 
+    @WebMethod(operationName = "clearMessages")
+    public Response clearMessages(
+            @WebParam(name = "connection") SqliteConnection connection) {
+        Response response = new Response();
+        LoggerDataSource loggerDataSource = getDataSource(connection);
+
+        try {
+            MessageDao messageDao = new MessageDao(loggerDataSource);
+            messageDao.clear();
+
+            response.setObject("Success");
+        } catch (SQLException ex) {
+            response.setError(true);
+            response.setDescription(ex.getLocalizedMessage());
+        }
+
+        return response;
+    }
+
     @WebMethod(operationName = "logSqlite")
     public Response logSqlite(
             @WebParam(name = "connection") SqliteConnection connection,

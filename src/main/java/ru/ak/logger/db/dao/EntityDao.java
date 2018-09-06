@@ -13,4 +13,6 @@ public interface EntityDao<T, ID extends Serializable> {
     T findByName(String name) throws SQLException;
 
     Iterable<T> findAll() throws SQLException;
+
+    void clear() throws SQLException;
 }
