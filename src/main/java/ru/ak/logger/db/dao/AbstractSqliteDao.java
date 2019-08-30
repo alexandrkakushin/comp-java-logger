@@ -16,6 +16,7 @@ import java.util.ArrayList;
 public abstract class AbstractSqliteDao<T, ID extends Serializable> implements EntityDao<T, ID> {
 
     private LoggerDataSource loggerDataSource;
+    private Long lastRowId;
 
     public AbstractSqliteDao(LoggerDataSource loggerDataSource) {
         this.loggerDataSource = loggerDataSource;
@@ -48,7 +49,8 @@ public abstract class AbstractSqliteDao<T, ID extends Serializable> implements E
             preparedStatement.executeUpdate();
             connection.commit();
 
-            return (ID) SqliteConnection.getLastRowId(connection);
+            lastRowId = SqliteConnection.getLastRowId(connection);
+            return (ID) lastRowId;
         }
     }
 

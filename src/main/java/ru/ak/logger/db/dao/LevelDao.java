@@ -1,7 +1,7 @@
 package ru.ak.logger.db.dao;
 
 import ru.ak.logger.db.LoggerDataSource;
-import ru.ak.logger.model.Level;
+import ru.ak.model.Level;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

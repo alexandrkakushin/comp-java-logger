@@ -1,9 +1,9 @@
 package ru.ak.logger.db.dao;
 
 import ru.ak.logger.db.LoggerDataSource;
-import ru.ak.logger.model.Level;
-import ru.ak.logger.model.Message;
-import ru.ak.logger.model.ObjectLog;
+import ru.ak.model.Level;
+import ru.ak.model.Message;
+import ru.ak.model.ObjectLog;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

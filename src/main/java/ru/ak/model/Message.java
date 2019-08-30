@@ -1,14 +1,12 @@
-package ru.ak.logger.model;
+package ru.ak.model;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import java.time.LocalDateTime;
+import javax.xml.bind.annotation.XmlElement;
+
 import java.util.Date;
 
 /**
  * @author a.kakushin
  */
-@XmlAccessorType(XmlAccessType.FIELD)
 public class Message {
 
     private Long id;
@@ -40,6 +38,7 @@ public class Message {
         this.text = text;
     }
 
+    @XmlElement
     public Long getId() {
         return id;
     }
@@ -48,6 +47,7 @@ public class Message {
         this.id = id;
     }
 
+    @XmlElement    
     public Date getPeriod() {
         return period;
     }
@@ -56,6 +56,7 @@ public class Message {
         this.period = period;
     }
 
+    @XmlElement    
     public ObjectLog getObjectLog() {
         return objectLog;
     }
@@ -64,6 +65,7 @@ public class Message {
         this.objectLog = objectLog;
     }
 
+    @XmlElement    
     public Level getLevel() {
         return level;
     }
@@ -72,6 +74,7 @@ public class Message {
         this.level = level;
     }
 
+    @XmlElement    
     public String getText() {
         return text;
     }

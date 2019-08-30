@@ -1,27 +1,22 @@
-package ru.ak.logger.model;
+package ru.ak.model;
 
 /**
  * @author a.kakushin
  */
-public class Level implements Cloneable {
+public class ObjectLog {
 
     private Long id;
     private String name;
 
-    public Level() {}
+    public ObjectLog() {}
 
-    public Level(Long id, String name) {
+    public ObjectLog(String name) {
+        this.name = name;
+    }
+
+    public ObjectLog(Long id, String name) {
         this.id = id;
         this.name = name;
-    }
-
-    public Level(String name) {
-        this.name = name;
-    }
-
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 
     public Long getId() {

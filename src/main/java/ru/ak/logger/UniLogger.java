@@ -1,16 +1,12 @@
 package ru.ak.logger;
 
-import ru.ak.logger.db.DbUtility;
-import ru.ak.logger.db.LoggerDataSource;
+import ru.ak.logger.db.*;
 import ru.ak.logger.db.connection.DbConnection;
 import ru.ak.logger.db.connection.SqliteConnection;
 import ru.ak.logger.db.dao.LevelDao;
 import ru.ak.logger.db.dao.MessageDao;
 import ru.ak.logger.db.dao.ObjectLogDao;
-import ru.ak.logger.model.Level;
-import ru.ak.logger.model.Message;
-import ru.ak.logger.model.ObjectLog;
-import ru.ak.logger.model.Response;
+import ru.ak.model.*;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;

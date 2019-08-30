@@ -1,11 +1,11 @@
-package ru.ak.logger.model;
+package ru.ak.model;
 
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 
-@XmlAccessorType(XmlAccessType.FIELD)
 public class Response implements Serializable {
 
+	private static final long serialVersionUID = -7004999904619722613L;
 	private Object object;
 	private boolean error;
 	private String description;
@@ -19,6 +19,7 @@ public class Response implements Serializable {
 		this.description = description;
 	}
 
+	@XmlElement
 	public Object getObject() {
 		return object;
 	}
@@ -27,6 +28,7 @@ public class Response implements Serializable {
 		this.object = object;
 	}
 
+	@XmlElement
 	public boolean isError() {
 		return error;
 	}
@@ -35,6 +37,7 @@ public class Response implements Serializable {
 		this.error = error;
 	}
 
+	@XmlElement
 	public String getDescription() {
 		return description;
 	}

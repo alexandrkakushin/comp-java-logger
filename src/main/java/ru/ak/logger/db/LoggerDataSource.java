@@ -1,20 +1,16 @@
 package ru.ak.logger.db;
 
 import org.apache.commons.dbcp2.BasicDataSource;
-import ru.ak.logger.MainClass;
 import ru.ak.logger.db.connection.DbConnection;
 import ru.ak.logger.db.connection.SqliteConnection;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.logging.Logger;
 
 /**
  * @author a.kakushin
  */
 public class LoggerDataSource {
-
-    private Logger logger =  MainClass.getInstanceLogger();
 
     private BasicDataSource dataSource;
 
