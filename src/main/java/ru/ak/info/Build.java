@@ -1,4 +1,4 @@
-package ru.ak.model;
+package ru.ak.info;
 
 import javax.xml.bind.annotation.XmlElement;
 

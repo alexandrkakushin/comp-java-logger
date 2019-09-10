@@ -1,7 +1,6 @@
 package ru.ak.info;
 
 import ru.ak.logger.UniLogger;
-import ru.ak.model.Build;
 
 import java.util.ArrayList;
 import java.util.List;
