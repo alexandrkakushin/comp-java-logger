@@ -55,7 +55,10 @@ public class InfoService extends UniLogger {
 
         builds.add(            
             new Build("1.0.0.2", description_1_0_0_2()));
-    
+
+        builds.add(
+            new Build("1.0.0.3", description_1_0_0_3()));
+
         return builds;
     }
 
@@ -65,5 +68,9 @@ public class InfoService extends UniLogger {
 
     private String description_1_0_0_2() {
         return "Миграция на Java 11, рефакторинг проекта";
-    }    
+    }
+
+    private String description_1_0_0_3() {
+        return "Исправление ошибки конвертации XDTO-объекта 1С";
+    }
 }
