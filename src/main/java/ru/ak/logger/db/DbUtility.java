@@ -1,45 +1,35 @@
 package ru.ak.logger.db;
 
-import ru.ak.logger.MainClass;
-
-import java.sql.*;
-import java.util.logging.Logger;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
+ * Утилитный класс для создания таблиц БД
+ * 
  * @author a.kakushin
  */
 public class DbUtility {
 
-    private static Logger logger = MainClass.getInstanceLogger();
+    private DbUtility() {
+        throw new IllegalStateException("Utility class");
+    }
 
-    public static void init(LoggerDataSource loggerDataSource) throws SQLException {
-        String sqlLevels =
-            "CREATE TABLE IF NOT EXISTS levels (" +
-            "id integer PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-            "name text NOT NULL UNIQUE);";
+    private static final String SQL_LEVELS = "CREATE TABLE IF NOT EXISTS levels (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, name text NOT NULL UNIQUE);";
 
-        String sqlObjects =
-            "CREATE TABLE IF NOT EXISTS objects (" +
-            "id integer PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-            "name text NOT NULL UNIQUE); ";
+    private static final String SQL_OBJECTS = "CREATE TABLE IF NOT EXISTS objects (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, name text NOT NULL UNIQUE);";
 
-        String sqlMessages =
-            "CREATE TABLE IF NOT EXISTS messages (" +
-            "id integer PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-            "period text NOT NULL, " +
-            "id_level integer NOT NULL, " +
-            "id_object integer NOT NULL, " +
-            "text text);";
+    private static final String SQL_MESSAGES = "CREATE TABLE IF NOT EXISTS messages (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, period text NOT NULL, id_level integer NOT NULL, id_object integer NOT NULL, text text);";
+
+    public static void init(final LoggerDataSource loggerDataSource) throws SQLException {
 
         try (Connection connection = loggerDataSource.getBasicDataSource().getConnection();
-             Statement statement = connection.createStatement()) {
+                Statement statement = connection.createStatement()) {
 
-            statement.addBatch(sqlLevels);
-            statement.addBatch(sqlObjects);
-            statement.addBatch(sqlMessages);
+            statement.addBatch(SQL_LEVELS);
+            statement.addBatch(SQL_OBJECTS);
+            statement.addBatch(SQL_MESSAGES);
             statement.executeBatch();
-        } catch (Exception ex) {
-            logger.warning("Check tables error; " + ex.getLocalizedMessage());
         }
     }
 

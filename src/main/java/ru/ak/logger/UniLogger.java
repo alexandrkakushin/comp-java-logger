@@ -3,9 +3,9 @@ package ru.ak.logger;
 import ru.ak.logger.db.*;
 import ru.ak.logger.db.connection.DbConnection;
 import ru.ak.logger.db.connection.SqliteConnection;
-import ru.ak.logger.db.dao.LevelDao;
-import ru.ak.logger.db.dao.MessageDao;
-import ru.ak.logger.db.dao.ObjectLogDao;
+import ru.ak.logger.db.dao.LevelController;
+import ru.ak.logger.db.dao.MessageController;
+import ru.ak.logger.db.dao.ObjectLogController;
 import ru.ak.model.*;
 
 import javax.jws.WebMethod;
@@ -18,9 +18,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 /**
  * Web-сервис для реализации логгера
+ * 
  * @author a.kakushin
  */
 @WebService
@@ -28,47 +28,36 @@ public class UniLogger {
 
     private HashMap<DbConnection, LoggerDataSource> gates = new HashMap<>();
 
-    private LoggerDataSource getDataSource(DbConnection dbConnection) {
-        LoggerDataSource dataSource = this.gates.get(dbConnection);
-        if (dataSource == null) {
-            dataSource = new LoggerDataSource(dbConnection);
-            this.gates.put(dbConnection, dataSource);
-        }
-        return dataSource;
+    private LoggerDataSource getDataSource(DbConnection dbConnection) {        
+        return this.gates.computeIfAbsent(dbConnection, key -> new LoggerDataSource(dbConnection));
     }
 
     // Интерфейс взаимодействия
 
     @WebMethod(operationName = "logs")
     public List<String> logs() {
-        return
-            this.gates.keySet().stream()
-                .filter(item -> item instanceof SqliteConnection)
-                .map(item -> ((SqliteConnection) item).getFileName())
-                .collect(Collectors.toList());
+        return this.gates.keySet().stream().filter(item -> item instanceof SqliteConnection)
+                .map(item -> ((SqliteConnection) item).getFileName()).collect(Collectors.toList());
     }
 
     @WebMethod(operationName = "messagesByPeriod")
-    public List<Message> messagesByPeriod(
-            @WebParam(name = "connection") SqliteConnection connection,
-            @WebParam(name = "from") Date from,
-            @WebParam(name = "to") Date to) throws SQLException, ParseException {
+    public List<Message> messagesByPeriod(@WebParam(name = "connection") SqliteConnection connection,
+            @WebParam(name = "from") Date from, @WebParam(name = "to") Date to) throws SQLException, ParseException {
 
         LoggerDataSource loggerDataSource = getDataSource(connection);
 
-        MessageDao messageDao = new MessageDao(loggerDataSource);
+        MessageController messageDao = new MessageController(loggerDataSource);
         return (List<Message>) messageDao.findByPeriodBetween(from, to);
     }
 
     @WebMethod(operationName = "clearMessages")
-    public Response clearMessages(
-            @WebParam(name = "connection") SqliteConnection connection) {
+    public Response clearMessages(@WebParam(name = "connection") SqliteConnection connection) {
         Response response = new Response();
         LoggerDataSource loggerDataSource = getDataSource(connection);
 
         try {
-            MessageDao messageDao = new MessageDao(loggerDataSource);
-            messageDao.clear();
+            MessageController messageDao = new MessageController(loggerDataSource);
+            messageDao.deleteAll();
 
             response.setObject("Success");
         } catch (SQLException ex) {
@@ -80,10 +69,8 @@ public class UniLogger {
     }
 
     @WebMethod(operationName = "logSqlite")
-    public Response logSqlite(
-            @WebParam(name = "connection") SqliteConnection connection,
-            @WebParam(name = "object") String object,
-            @WebParam(name = "text") String text,
+    public Response logSqlite(@WebParam(name = "connection") SqliteConnection connection,
+            @WebParam(name = "object") String object, @WebParam(name = "text") String text,
             @WebParam(name = "level") String level) {
 
         Response response = new Response();
@@ -91,9 +78,9 @@ public class UniLogger {
             LoggerDataSource loggerDataSource = getDataSource(connection);
             DbUtility.init(loggerDataSource);
 
-            LevelDao levelDao = new LevelDao(loggerDataSource);
-            ObjectLogDao objectLogDao = new ObjectLogDao(loggerDataSource);
-            MessageDao messageDao = new MessageDao(loggerDataSource);
+            LevelController levelDao = new LevelController(loggerDataSource);
+            ObjectLogController objectLogDao = new ObjectLogController(loggerDataSource);
+            MessageController messageDao = new MessageController(loggerDataSource);
 
             // Подготовка уровня
             Level levelDb = levelDao.findByName(level);
@@ -112,7 +99,7 @@ public class UniLogger {
             messageDao.create(new Message(objectLogDb, levelDb, text));
 
             response.setObject("Success");
-        }  catch (Exception ex) {
+        } catch (Exception ex) {
             response.setError(true);
             response.setDescription(ex.getLocalizedMessage());
         }
