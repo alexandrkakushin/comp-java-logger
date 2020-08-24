@@ -24,10 +24,11 @@ public class LoggerDataSource {
             throw new IllegalArgumentException("Подключение не поддерживается");
         }
 
-        dataSource.setMinIdle(5);
-        dataSource.setMaxIdle(10);
-        dataSource.setPoolPreparedStatements(true);
-        dataSource.setMaxOpenPreparedStatements(100);
+        // dataSource.setMinIdle(5);
+        // dataSource.setMaxIdle(10);
+        // dataSource.setPoolPreparedStatements(true);
+        // dataSource.setMaxOpenPreparedStatements(100);
+        // dataSource.setTestWhileIdle(true);        
     }
 
     public BasicDataSource getBasicDataSource() {

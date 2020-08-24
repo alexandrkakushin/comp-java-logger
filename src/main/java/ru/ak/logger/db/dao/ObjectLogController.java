@@ -1,5 +1,6 @@
 package ru.ak.logger.db.dao;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,7 +9,6 @@ import java.util.List;
 
 import ru.ak.logger.db.LoggerDataSource;
 import ru.ak.model.ObjectLog;
-
 
 /**
  * @author a.kakushin
@@ -28,25 +28,24 @@ public class ObjectLogController extends AbstractController<ObjectLog, Long> {
     public Long create(ObjectLog object) throws SQLException {
         Long id = null;
 
-        try (PreparedStatement ps = getPreparedStatement(SQL_CREATE)) {
-            if (ps != null) {
-                ps.setString(1, object.getName());
-                ps.executeUpdate();
-                ps.getConnection().commit();
-                id = getLastId(ps.getConnection());
-            }
+        try (Connection connection = getLoggerDataSource().getConnection();
+                PreparedStatement ps = connection.prepareStatement(SQL_CREATE)) {
+            ps.setString(1, object.getName());
+            ps.executeUpdate();
+            id = getLastId(ps.getConnection());
         }
 
         return id;
-
     }
 
     public ObjectLog findByName(String name) throws SQLException {
 
         ObjectLog object = null;
-        try (PreparedStatement ps = getPreparedStatement(SQL_FIND_BY_NAME)) {
-            ps.setString(1, name);
 
+        try (Connection connection = getLoggerDataSource().getConnection();
+                PreparedStatement ps = connection.prepareStatement(SQL_FIND_BY_NAME)) {
+
+            ps.setString(1, name);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     object = new ObjectLog(rs.getLong("id"), rs.getString("name"));
@@ -60,7 +59,8 @@ public class ObjectLogController extends AbstractController<ObjectLog, Long> {
     @Override
     public Iterable<ObjectLog> selectAll() throws SQLException {
         List<ObjectLog> list = new ArrayList<>();
-        try (PreparedStatement ps = getPreparedStatement(SQL_SELECT_ALL); ResultSet rs = ps.executeQuery()) {
+        try (Connection connection = getLoggerDataSource().getConnection();
+        PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(new ObjectLog(rs.getLong("id"), rs.getString("name")));
             }
@@ -71,7 +71,8 @@ public class ObjectLogController extends AbstractController<ObjectLog, Long> {
 
     @Override
     public void deleteAll() throws SQLException {
-        try (PreparedStatement ps = getPreparedStatement(SQL_DELETE_ALL)) {
+        try (Connection connection = getLoggerDataSource().getConnection();
+                PreparedStatement ps = connection.prepareStatement(SQL_DELETE_ALL)) {
             ps.execute();
             ps.getConnection().commit();
         }

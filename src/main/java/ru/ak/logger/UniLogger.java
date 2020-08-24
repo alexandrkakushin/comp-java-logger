@@ -28,7 +28,7 @@ public class UniLogger {
 
     private HashMap<DbConnection, LoggerDataSource> gates = new HashMap<>();
 
-    private LoggerDataSource getDataSource(DbConnection dbConnection) {        
+    private LoggerDataSource getDataSource(DbConnection dbConnection) {  
         return this.gates.computeIfAbsent(dbConnection, key -> new LoggerDataSource(dbConnection));
     }
 
@@ -41,13 +41,19 @@ public class UniLogger {
     }
 
     @WebMethod(operationName = "messagesByPeriod")
-    public List<Message> messagesByPeriod(@WebParam(name = "connection") SqliteConnection connection,
-            @WebParam(name = "from") Date from, @WebParam(name = "to") Date to) throws SQLException, ParseException {
+    public List<Message> messagesByPeriod(
+        @WebParam(name = "connection") SqliteConnection connection,
+        @WebParam(name = "from") Date from, 
+        @WebParam(name = "to") Date to,
+        @WebParam(name = "limit") int limit,    
+        @WebParam(name = "offset") int offset
+
+    ) throws SQLException, ParseException {
 
         LoggerDataSource loggerDataSource = getDataSource(connection);
 
         MessageController messageDao = new MessageController(loggerDataSource);
-        return (List<Message>) messageDao.findByPeriodBetween(from, to);
+        return (List<Message>) messageDao.findByPeriodBetween(from, to, limit, offset);
     }
 
     @WebMethod(operationName = "clearMessages")
@@ -104,5 +110,15 @@ public class UniLogger {
             response.setDescription(ex.getLocalizedMessage());
         }
         return response;
+    }
+
+    class MessagesByPeriodResponse {
+        private int count;
+        private List<Message> messages;
+        
+        MessagesByPeriodResponse(int count, List<Message> messages) {
+            this.count = count;
+            this.messages = messages;
+        }
     }
 }

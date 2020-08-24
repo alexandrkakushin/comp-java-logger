@@ -23,9 +23,8 @@ public class DbUtility {
 
     public static void init(final LoggerDataSource loggerDataSource) throws SQLException {
 
-        try (Connection connection = loggerDataSource.getBasicDataSource().getConnection();
+        try (Connection connection = loggerDataSource.getConnection();
                 Statement statement = connection.createStatement()) {
-
             statement.addBatch(SQL_LEVELS);
             statement.addBatch(SQL_OBJECTS);
             statement.addBatch(SQL_MESSAGES);

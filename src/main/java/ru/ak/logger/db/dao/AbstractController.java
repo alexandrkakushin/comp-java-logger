@@ -2,7 +2,6 @@ package ru.ak.logger.db.dao;
 
 import java.io.Serializable;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -18,24 +17,18 @@ public abstract class AbstractController<E, K extends Serializable> {
 
     AbstractController(LoggerDataSource lds) {
         this.loggerDataSource = lds;
-    } 
+    }
 
     public static final String SQL_LAST_ID = "SELECT last_insert_rowid()";
 
-    public abstract K create(E entiry) throws SQLException;
+    public abstract K create(E object) throws SQLException;
 
     public abstract Iterable<E> selectAll() throws SQLException;
 
-    public abstract void deleteAll() throws SQLException ;
+    public abstract void deleteAll() throws SQLException;
 
-    public PreparedStatement getPreparedStatement(String sql) throws SQLException {
-        PreparedStatement ps = null;
-
-        try (Connection connection = this.loggerDataSource.getConnection()) {
-            ps = connection.prepareStatement(sql);
-        }
-
-        return ps;
+    public LoggerDataSource getLoggerDataSource() {
+        return this.loggerDataSource;
     }
 
     public Long getLastId(Connection connection) throws SQLException {
