@@ -42,15 +42,14 @@ public class UniLogger {
 
     @WebMethod(operationName = "messagesByPeriod")
     public List<Message> messagesByPeriod(@WebParam(name = "connection") SqliteConnection connection,
-            @WebParam(name = "from") Date from, @WebParam(name = "to") Date to, @WebParam(name = "limit") int limit,
-            @WebParam(name = "offset") int offset
+            @WebParam(name = "from") Date from, @WebParam(name = "to") Date to
 
     ) throws SQLException, ParseException {
 
         LoggerDataSource loggerDataSource = getDataSource(connection);
 
         MessageController messageDao = new MessageController(loggerDataSource);
-        return (List<Message>) messageDao.findByPeriodBetween(from, to, limit, offset);
+        return (List<Message>) messageDao.findByPeriodBetween(from, to);
     }
 
     @WebMethod(operationName = "clearMessages")

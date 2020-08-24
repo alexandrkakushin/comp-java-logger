@@ -23,7 +23,7 @@ public class InfoService extends UniLogger {
      */
     @WebMethod(operationName = "version")
     public String version() {
-        return builds().size() == 0 ? "null" : builds().get(builds().size() - 1).getVersion();
+        return builds().isEmpty() ? "null" : builds().get(builds().size() - 1).getVersion();
     }
 
     /** 
@@ -36,15 +36,15 @@ public class InfoService extends UniLogger {
     }
 
     public static class Builds {
-        private List<Build> builds;
+        private List<Build> items;
 
         public Builds(List<Build> builds) {
-            this.builds = builds;
+            this.items = builds;
         }
 
         @XmlElement
         public List<Build> getBuilds() {
-            return builds;
+            return items;
         }
     }
     
@@ -59,6 +59,9 @@ public class InfoService extends UniLogger {
         builds.add(
             new Build("1.0.0.3", description_1_0_0_3()));
 
+        builds.add(
+            new Build("1.0.0.4", description_1_0_0_4()));
+
         return builds;
     }
 
@@ -72,5 +75,9 @@ public class InfoService extends UniLogger {
 
     private String description_1_0_0_3() {
         return "Исправление ошибки конвертации XDTO-объекта 1С";
+    }
+
+    private String description_1_0_0_4() {
+        return "Оптимизация работы с базой данных";
     }
 }

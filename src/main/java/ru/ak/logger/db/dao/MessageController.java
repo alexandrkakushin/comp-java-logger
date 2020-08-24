@@ -84,15 +84,13 @@ public class MessageController extends AbstractController<Message, Long> {
         }
     }
 
-    public Iterable<Message> findByPeriodBetween(Date from, Date to, int limit, int offset)
-            throws SQLException, ParseException {
+    public Iterable<Message> findByPeriodBetween(Date from, Date to) throws SQLException, ParseException {
         String sql = "SELECT\n" + "  messages.id AS id,\n" + "  messages.period AS period,\n"
                 + "  messages.id_level AS id_level,\n" + "  levels.name AS name_level,\n"
                 + "  messages.id_object AS id_object,\n" + "  objects.name AS name_object,\n"
                 + "  messages.text AS text\n" + "\n" + "FROM messages\n"
                 + "  LEFT JOIN objects ON objects.id = id_object\n" + "  LEFT JOIN levels ON levels.id = id_level\n"
-                + "WHERE messages.period BETWEEN ? and ?\n" + "ORDER BY messages.period\n" + "LIMIT " + limit + ","
-                + offset + ";";
+                + "WHERE messages.period BETWEEN ? and ?\n" + "ORDER BY messages.period;";
 
         List<Message> messages = new ArrayList<>();
 
