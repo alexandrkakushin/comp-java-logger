@@ -80,7 +80,6 @@ public class MessageController extends AbstractController<Message, Long> {
         try (Connection connection = getLoggerDataSource().getConnection();
                 PreparedStatement ps = connection.prepareStatement(SQL_DELETE_ALL)) {
             ps.execute();
-            ps.getConnection().commit();
         }
     }
 

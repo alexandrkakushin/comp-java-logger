@@ -79,7 +79,6 @@ public class LevelController extends AbstractController<Level, Long> {
         try (Connection connection = getLoggerDataSource().getConnection();
                 PreparedStatement ps = connection.prepareStatement(SQL_DELETE_ALL)) {
             ps.execute();
-            ps.getConnection().commit();
         }
     }
 

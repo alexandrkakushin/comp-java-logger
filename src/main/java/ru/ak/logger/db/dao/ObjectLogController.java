@@ -74,7 +74,6 @@ public class ObjectLogController extends AbstractController<ObjectLog, Long> {
         try (Connection connection = getLoggerDataSource().getConnection();
                 PreparedStatement ps = connection.prepareStatement(SQL_DELETE_ALL)) {
             ps.execute();
-            ps.getConnection().commit();
         }
     }
 }
