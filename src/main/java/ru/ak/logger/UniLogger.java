@@ -7,6 +7,7 @@ import ru.ak.logger.db.connection.SqliteConnection;
 import ru.ak.logger.db.dao.LevelController;
 import ru.ak.logger.db.dao.MessageController;
 import ru.ak.logger.db.dao.ObjectLogController;
+import ru.ak.model.DbRecords;
 import ru.ak.model.Level;
 import ru.ak.model.Message;
 import ru.ak.model.ObjectLog;
@@ -38,6 +39,10 @@ public class UniLogger {
     private LoggerDataSource prepareDataSource(final DbConnection dbConnection) throws SQLException {
 
         if (dbConnection instanceof SqliteConnection) {
+            if (((SqliteConnection) dbConnection).getFileName() == null) {
+                throw new SQLException("Can not connected to database. Check parameters");
+            }
+    
             final Path db = Paths.get(((SqliteConnection) dbConnection).getFileName());
             if (!Files.exists(db)) {
                 this.gates.remove(dbConnection);
@@ -60,15 +65,16 @@ public class UniLogger {
     }
 
     @WebMethod(operationName = "messagesByPeriod")
-    public List<Message> messagesByPeriod(@WebParam(name = "connection") final SqliteConnection connection,
-            @WebParam(name = "from") final Date from, @WebParam(name = "to") final Date to
+    public DbRecords<Message> messagesByPeriod(@WebParam(name = "connection") final SqliteConnection connection,
+            @WebParam(name = "from") final Date from, @WebParam(name = "to") final Date to,
+            @WebParam(name = "limit") int limit, @WebParam(name = "offset") int offset
 
     ) throws SQLException, ParseException {
 
         final LoggerDataSource loggerDataSource = prepareDataSource(connection);
 
         final MessageController messageDao = new MessageController(loggerDataSource);
-        return (List<Message>) messageDao.findByPeriodBetween(from, to);
+        return messageDao.findByPeriod(from, to, limit, offset);
     }
 
     @WebMethod(operationName = "clearMessages")

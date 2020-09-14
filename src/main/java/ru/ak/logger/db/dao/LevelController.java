@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ak.logger.db.LoggerDataSource;
+import ru.ak.model.DbRecords;
 import ru.ak.model.Level;
 
 /**
@@ -61,7 +62,7 @@ public class LevelController extends AbstractController<Level, Long> {
     }
 
     @Override
-    public Iterable<Level> selectAll() throws SQLException {
+    public DbRecords<Level> selectAll() throws SQLException {
         List<Level> list = new ArrayList<>();
         try (Connection connection = getLoggerDataSource().getConnection();
                 PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL);
@@ -71,7 +72,7 @@ public class LevelController extends AbstractController<Level, Long> {
             }
         }
 
-        return list;
+        return new DbRecords<>(list);
     }
 
     @Override

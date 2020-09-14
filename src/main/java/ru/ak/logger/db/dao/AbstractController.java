@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import ru.ak.logger.db.LoggerDataSource;
+import ru.ak.model.DbRecords;
 
 /**
  * @author a.kakushin
@@ -23,7 +24,7 @@ public abstract class AbstractController<E, K extends Serializable> {
 
     public abstract K create(E object) throws SQLException;
 
-    public abstract Iterable<E> selectAll() throws SQLException;
+    public abstract DbRecords<E> selectAll() throws SQLException;
 
     public abstract void deleteAll() throws SQLException;
 

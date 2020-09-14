@@ -62,6 +62,9 @@ public class InfoService extends UniLogger {
         builds.add(
             new Build("1.0.0.4", description_1_0_0_4()));
 
+        builds.add(
+            new Build("1.0.0.5", description_1_0_0_5()));
+    
         return builds;
     }
 
@@ -79,5 +82,9 @@ public class InfoService extends UniLogger {
 
     private String description_1_0_0_4() {
         return "Оптимизация работы с базой данных";
+    }
+
+    private String description_1_0_0_5() {
+        return "Реализовано постраниченое чтение логов";
     }
 }

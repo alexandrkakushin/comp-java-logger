@@ -3,7 +3,7 @@ package ru.ak.model;
 /**
  * @author a.kakushin
  */
-public class Level implements Cloneable {
+public class Level {
 
     private Long id;
     private String name;
@@ -17,11 +17,6 @@ public class Level implements Cloneable {
 
     public Level(String name) {
         this.name = name;
-    }
-
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 
     public Long getId() {

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ak.logger.db.LoggerDataSource;
+import ru.ak.model.DbRecords;
 import ru.ak.model.ObjectLog;
 
 /**
@@ -57,7 +58,7 @@ public class ObjectLogController extends AbstractController<ObjectLog, Long> {
     }
 
     @Override
-    public Iterable<ObjectLog> selectAll() throws SQLException {
+    public DbRecords<ObjectLog> selectAll() throws SQLException {
         List<ObjectLog> list = new ArrayList<>();
         try (Connection connection = getLoggerDataSource().getConnection();
         PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL); ResultSet rs = ps.executeQuery()) {
@@ -66,7 +67,7 @@ public class ObjectLogController extends AbstractController<ObjectLog, Long> {
             }
         }
 
-        return list;
+        return new DbRecords<>(list);
     }
 
     @Override

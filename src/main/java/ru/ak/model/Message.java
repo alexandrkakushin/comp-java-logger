@@ -1,12 +1,14 @@
 package ru.ak.model;
 
-import javax.xml.bind.annotation.XmlElement;
-
 import java.util.Date;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * @author a.kakushin
  */
+@XmlRootElement
 public class Message {
 
     private Long id;

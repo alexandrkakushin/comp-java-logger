@@ -1,6 +1,7 @@
 package ru.ak.logger.db.dao;
 
 import ru.ak.logger.db.LoggerDataSource;
+import ru.ak.model.DbRecords;
 import ru.ak.model.Level;
 import ru.ak.model.Message;
 import ru.ak.model.ObjectLog;
@@ -55,7 +56,7 @@ public class MessageController extends AbstractController<Message, Long> {
     }
 
     @Override
-    public Iterable<Message> selectAll() throws SQLException {
+    public DbRecords<Message> selectAll() throws SQLException {
 
         List<Message> messages = new ArrayList<>();
 
@@ -71,8 +72,9 @@ public class MessageController extends AbstractController<Message, Long> {
                     ex.printStackTrace();
                 }
             }
-            return messages;
         }
+
+        return new DbRecords<>(messages);
     }
 
     @Override
@@ -83,13 +85,16 @@ public class MessageController extends AbstractController<Message, Long> {
         }
     }
 
-    public Iterable<Message> findByPeriodBetween(Date from, Date to) throws SQLException, ParseException {
-        String sql = "SELECT\n" + "  messages.id AS id,\n" + "  messages.period AS period,\n"
-                + "  messages.id_level AS id_level,\n" + "  levels.name AS name_level,\n"
-                + "  messages.id_object AS id_object,\n" + "  objects.name AS name_object,\n"
-                + "  messages.text AS text\n" + "\n" + "FROM messages\n"
-                + "  LEFT JOIN objects ON objects.id = id_object\n" + "  LEFT JOIN levels ON levels.id = id_level\n"
-                + "WHERE messages.period BETWEEN ? and ?\n" + "ORDER BY messages.period;";
+    public DbRecords<Message> findByPeriod(Date from, Date to, int limit, int offset) throws SQLException, ParseException {
+        String sql = 
+            "SELECT\n" + " messages.id AS id,\n" + "  messages.period AS period,\n"
+            + "  messages.id_level AS id_level,\n" + "  levels.name AS name_level,\n"
+            + "  messages.id_object AS id_object,\n" + "  objects.name AS name_object,\n"
+            + "  messages.text AS text\n" + "\n" + "FROM messages\n"
+            + "  LEFT JOIN objects ON objects.id = id_object\n" + "  LEFT JOIN levels ON levels.id = id_level\n"
+            + "WHERE messages.period BETWEEN ? and ?\n" 
+            + "ORDER BY messages.period\n"
+            + "LIMIT ? OFFSET ?;\n";
 
         List<Message> messages = new ArrayList<>();
 
@@ -98,6 +103,8 @@ public class MessageController extends AbstractController<Message, Long> {
 
             ps.setString(1, dateFormat.format(from));
             ps.setString(2, dateFormat.format(to));
+            ps.setInt(3, limit);
+            ps.setInt(4, offset);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -113,7 +120,24 @@ public class MessageController extends AbstractController<Message, Long> {
             }
         }
 
-        return messages;
-    }
+        String sqlCount = 
+            "SELECT count(*) as count_records FROM messages WHERE messages.period BETWEEN ? and ?;"; 
 
+        int count = 0;
+
+        try (Connection connection = getLoggerDataSource().getConnection();
+            PreparedStatement ps = connection.prepareStatement(sqlCount)) {
+
+            ps.setString(1, dateFormat.format(from));
+            ps.setString(2, dateFormat.format(to));
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    count = rs.getInt("count_records");
+                }
+            }
+        }
+
+        return new DbRecords<>(messages, count);
+    }
 }
