@@ -85,6 +85,6 @@ public class InfoService extends UniLogger {
     }
 
     private String description_1_0_0_5() {
-        return "Реализовано постраниченое чтение логов";
+        return "Реализовано постраничное чтение логов";
     }
 }
