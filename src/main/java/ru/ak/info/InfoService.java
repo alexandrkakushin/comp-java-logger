@@ -49,7 +49,7 @@ public class InfoService extends UniLogger {
     }
     
     private List<Build> builds() {
-        Set<String> versions = new HashSet<>();
+        List<String> versions = new ArrayList<>();
         versions.add("1.0.0.1");
         versions.add("1.0.0.2");
         versions.add("1.0.0.3");
