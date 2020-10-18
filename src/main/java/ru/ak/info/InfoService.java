@@ -2,12 +2,10 @@ package ru.ak.info;
 
 import ru.ak.logger.UniLogger;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.xml.bind.annotation.XmlElement;
+import java.util.*;
 
 /**
  * Корневой Web-сервис, содержащий метод получения версии
@@ -16,6 +14,8 @@ import javax.xml.bind.annotation.XmlElement;
 
 @WebService(name = "Info", serviceName = "Info", portName = "InfoPort") 
 public class InfoService extends UniLogger {
+
+    private static final ResourceBundle descriptions = ResourceBundle.getBundle("versions");
 
     /**
      * Получение версии компоненты
@@ -36,7 +36,7 @@ public class InfoService extends UniLogger {
     }
 
     public static class Builds {
-        private List<Build> items;
+        private final List<Build> items;
 
         public Builds(List<Build> builds) {
             this.items = builds;
@@ -49,42 +49,22 @@ public class InfoService extends UniLogger {
     }
     
     private List<Build> builds() {
+        Set<String> versions = new HashSet<>();
+        versions.add("1.0.0.1");
+        versions.add("1.0.0.2");
+        versions.add("1.0.0.3");
+        versions.add("1.0.0.4");
+        versions.add("1.0.0.5");
+        versions.add("1.0.0.6");
+
         List<Build> builds = new ArrayList<>();
-        builds.add(            
-            new Build("1.0.0.1", description_1_0_0_1()));
 
-        builds.add(            
-            new Build("1.0.0.2", description_1_0_0_2()));
+        versions.forEach(
+            item -> builds.add(
+                new Build(item, descriptions.getString(item))
+            )
+        );
 
-        builds.add(
-            new Build("1.0.0.3", description_1_0_0_3()));
-
-        builds.add(
-            new Build("1.0.0.4", description_1_0_0_4()));
-
-        builds.add(
-            new Build("1.0.0.5", description_1_0_0_5()));
-    
         return builds;
-    }
-
-    private String description_1_0_0_1() {
-        return "Создание проекта";
-    }
-
-    private String description_1_0_0_2() {
-        return "Миграция на Java 11, рефакторинг проекта";
-    }
-
-    private String description_1_0_0_3() {
-        return "Исправление ошибки конвертации XDTO-объекта 1С";
-    }
-
-    private String description_1_0_0_4() {
-        return "Оптимизация работы с базой данных";
-    }
-
-    private String description_1_0_0_5() {
-        return "Реализовано постраничное чтение логов";
     }
 }

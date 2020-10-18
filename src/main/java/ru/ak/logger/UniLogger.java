@@ -65,16 +65,30 @@ public class UniLogger {
     }
 
     @WebMethod(operationName = "messagesByPeriod")
-    public DbRecords<Message> messagesByPeriod(@WebParam(name = "connection") final SqliteConnection connection,
-            @WebParam(name = "from") final Date from, @WebParam(name = "to") final Date to,
-            @WebParam(name = "limit") int limit, @WebParam(name = "offset") int offset
-
+    public DbRecords<Message> messagesByPeriod(
+            @WebParam(name = "connection") SqliteConnection connection,
+            @WebParam(name = "from") Date from,
+            @WebParam(name = "to") Date to,
+            @WebParam(name = "limit") int limit,
+            @WebParam(name = "offset") int offset
     ) throws SQLException, ParseException {
 
         final LoggerDataSource loggerDataSource = prepareDataSource(connection);
 
         final MessageController messageDao = new MessageController(loggerDataSource);
         return messageDao.findByPeriod(from, to, limit, offset);
+    }
+
+    @WebMethod(operationName = "messagesByText")
+    public DbRecords<Message> messagesByText(
+            @WebParam(name = "connection") SqliteConnection connection,
+            @WebParam(name = "text") String text,
+            @WebParam(name = "limit") int limit,
+            @WebParam(name = "offset") int offset
+    ) throws SQLException, ParseException {
+
+        MessageController messageDao = new MessageController(prepareDataSource(connection));
+        return messageDao.findByText(text, limit, offset);
     }
 
     @WebMethod(operationName = "clearMessages")

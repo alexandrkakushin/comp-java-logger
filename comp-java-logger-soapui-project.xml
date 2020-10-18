@@ -43,6 +43,12 @@
   <message name="ParseException">
     <part name="fault" element="tns:ParseException"/>
   </message>
+  <message name="messageByText">
+    <part name="parameters" element="tns:messageByText"/>
+  </message>
+  <message name="messageByTextResponse">
+    <part name="parameters" element="tns:messageByTextResponse"/>
+  </message>
   <message name="clearMessages">
     <part name="parameters" element="tns:clearMessages"/>
   </message>
@@ -73,6 +79,12 @@
       <output wsam:Action="http://info.ak.ru/Info/messagesByPeriodResponse" message="tns:messagesByPeriodResponse"/>
       <fault message="tns:SQLException" name="SQLException" wsam:Action="http://info.ak.ru/Info/messagesByPeriod/Fault/SQLException"/>
       <fault message="tns:ParseException" name="ParseException" wsam:Action="http://info.ak.ru/Info/messagesByPeriod/Fault/ParseException"/>
+    </operation>
+    <operation name="messageByText">
+      <input wsam:Action="http://info.ak.ru/Info/messageByTextRequest" message="tns:messageByText"/>
+      <output wsam:Action="http://info.ak.ru/Info/messageByTextResponse" message="tns:messageByTextResponse"/>
+      <fault message="tns:SQLException" name="SQLException" wsam:Action="http://info.ak.ru/Info/messageByText/Fault/SQLException"/>
+      <fault message="tns:ParseException" name="ParseException" wsam:Action="http://info.ak.ru/Info/messageByText/Fault/ParseException"/>
     </operation>
     <operation name="clearMessages">
       <input wsam:Action="http://info.ak.ru/Info/clearMessagesRequest" message="tns:clearMessages"/>
@@ -127,6 +139,21 @@
         <soap:fault name="ParseException" use="literal"/>
       </fault>
     </operation>
+    <operation name="messageByText">
+      <soap:operation soapAction=""/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="SQLException">
+        <soap:fault name="SQLException" use="literal"/>
+      </fault>
+      <fault name="ParseException">
+        <soap:fault name="ParseException" use="literal"/>
+      </fault>
+    </operation>
     <operation name="clearMessages">
       <soap:operation soapAction=""/>
       <input>
@@ -153,6 +180,8 @@
   </service>
 </definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part><con:part><con:url>http://localhost:48804/Info?xsd=1</con:url><con:content><![CDATA[<!--Published by JAX-WS RI (http://jax-ws.java.net). RI's version is JAX-WS RI 2.3.2 git-revision#3d0bba4.-->
 <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" version="1.0" targetNamespace="http://logger.ak.ru/" xmlns:tns="http://logger.ak.ru/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://logger.ak.ru/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="dbRecords" type="dbRecords"/>
+  <xs:element name="message" type="message"/>
   <xs:complexType name="response">
     <xs:sequence>
       <xs:element name="description" type="xs:string" minOccurs="0"/>
@@ -160,15 +189,10 @@
       <xs:element name="object" type="xs:anyType" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
-  <xs:complexType name="builds">
+  <xs:complexType name="dbRecords">
     <xs:sequence>
-      <xs:element name="builds" type="build" minOccurs="0" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="build">
-    <xs:sequence>
-      <xs:element name="description" type="xs:string" minOccurs="0"/>
-      <xs:element name="version" type="xs:string" minOccurs="0"/>
+      <xs:element name="count" type="xs:int"/>
+      <xs:any processContents="lax" namespace="##other" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="message">
@@ -192,6 +216,17 @@
       <xs:element name="name" type="xs:string" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
+  <xs:complexType name="builds">
+    <xs:sequence>
+      <xs:element name="builds" type="build" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="build">
+    <xs:sequence>
+      <xs:element name="description" type="xs:string" minOccurs="0"/>
+      <xs:element name="version" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
 </xs:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>http://localhost:48804/Info?xsd=2</con:url><con:content><![CDATA[<!--Published by JAX-WS RI (http://jax-ws.java.net). RI's version is JAX-WS RI 2.3.2 git-revision#3d0bba4.-->
 <xs:schema version="1.0" targetNamespace="http://info.ak.ru/" xmlns:tns="http://info.ak.ru/" xmlns:ns2="http://logger.ak.ru/" xmlns:ns1="http://connection.logger.ak.ru/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:import namespace="http://connection.logger.ak.ru/" schemaLocation="http://localhost:48804/Info?xsd=3"/>
@@ -206,6 +241,8 @@
   <xs:element name="logSqliteResponse" type="tns:logSqliteResponse"/>
   <xs:element name="logs" type="tns:logs"/>
   <xs:element name="logsResponse" type="tns:logsResponse"/>
+  <xs:element name="messageByText" type="tns:messageByText"/>
+  <xs:element name="messageByTextResponse" type="tns:messageByTextResponse"/>
   <xs:element name="messagesByPeriod" type="tns:messagesByPeriod"/>
   <xs:element name="messagesByPeriodResponse" type="tns:messagesByPeriodResponse"/>
   <xs:element name="version" type="tns:version"/>
@@ -241,34 +278,17 @@
       <xs:element name="return" type="ns2:response" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
-  <xs:complexType name="version">
-    <xs:sequence/>
-  </xs:complexType>
-  <xs:complexType name="versionResponse">
-    <xs:sequence>
-      <xs:element name="return" type="xs:string" minOccurs="0"/>
-    </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="details">
-    <xs:sequence/>
-  </xs:complexType>
-  <xs:complexType name="detailsResponse">
-    <xs:sequence>
-      <xs:element name="return" type="ns2:builds" minOccurs="0"/>
-    </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="messagesByPeriod">
+  <xs:complexType name="messageByText">
     <xs:sequence>
       <xs:element name="connection" type="ns1:sqliteConnection" minOccurs="0"/>
-      <xs:element name="from" type="xs:dateTime" minOccurs="0"/>
-      <xs:element name="to" type="xs:dateTime" minOccurs="0"/>
+      <xs:element name="text" type="xs:string" minOccurs="0"/>
       <xs:element name="limit" type="xs:int"/>
       <xs:element name="offset" type="xs:int"/>
     </xs:sequence>
   </xs:complexType>
-  <xs:complexType name="messagesByPeriodResponse">
+  <xs:complexType name="messageByTextResponse">
     <xs:sequence>
-      <xs:element name="return" type="ns2:message" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="return" type="ns2:dbRecords" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="SQLException">
@@ -309,6 +329,36 @@
       <xs:element name="message" type="xs:string" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
+  <xs:complexType name="version">
+    <xs:sequence/>
+  </xs:complexType>
+  <xs:complexType name="versionResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="details">
+    <xs:sequence/>
+  </xs:complexType>
+  <xs:complexType name="detailsResponse">
+    <xs:sequence>
+      <xs:element name="return" type="ns2:builds" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="messagesByPeriod">
+    <xs:sequence>
+      <xs:element name="connection" type="ns1:sqliteConnection" minOccurs="0"/>
+      <xs:element name="from" type="xs:dateTime" minOccurs="0"/>
+      <xs:element name="to" type="xs:dateTime" minOccurs="0"/>
+      <xs:element name="limit" type="xs:int"/>
+      <xs:element name="offset" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="messagesByPeriodResponse">
+    <xs:sequence>
+      <xs:element name="return" type="ns2:dbRecords" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
 </xs:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>http://localhost:48804/Info?xsd=3</con:url><con:content><![CDATA[<!--Published by JAX-WS RI (http://jax-ws.java.net). RI's version is JAX-WS RI 2.3.2 git-revision#3d0bba4.-->
 <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" version="1.0" targetNamespace="http://connection.logger.ak.ru/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://logger.ak.ru/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:complexType name="sqliteConnection">
@@ -345,7 +395,7 @@
             <con:fileName>/tmp/comp-java-logger.sqlite</con:fileName>
          </connection>
          <object>TEST</object>
-         <text>test1</text>
+         <text>TEST3</text>
          <level>INFO</level>
       </info:logSqlite>
    </soapenv:Body>
@@ -367,7 +417,19 @@
    <soapenv:Body>
       <info:version/>
    </soapenv:Body>
-</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://info.ak.ru/Info/versionRequest"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:testSuite id="7c1f0638-c6f5-43a8-8b33-fde8a2e816e1" name="TestSuite"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase id="78737bcc-258a-4da2-aa55-274fab19d064" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="TestCase" searchProperties="true"><con:settings/><con:testStep type="properties" name="Properties" id="2070a5b5-7c89-4133-b66f-f9879f138823"><con:settings/><con:config xsi:type="con:PropertiesStep" saveFirst="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:properties><con:property><con:name>fileName</con:name><con:value>/tmp/comp-java-logger.sqlite</con:value></con:property><con:property><con:name>object</con:name><con:value>SoapUI</con:value></con:property><con:property><con:name>text</con:name><con:value>test message</con:value></con:property><con:property><con:name>level</con:name><con:value>INFO</con:value></con:property></con:properties></con:config></con:testStep><con:testStep type="request" name="SOAP Request" id="867763bd-d385-439b-9517-6e13d270da06"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>InfoPortBinding</con:interface><con:operation>logSqlite</con:operation><con:request name="SOAP Request" id="60f9758f-e900-4a15-8e73-39fb4506a4b0"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:48804/Info</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:info="http://info.ak.ru/" xmlns:con="http://connection.logger.ak.ru/">
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://info.ak.ru/Info/versionRequest"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation id="37fb0338-6ec0-47fe-aee1-c338d601dc85" isOneWay="false" action="" name="messageByText" bindingOperationName="messageByText" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="e5aee767-ffa6-49f9-be10-759f83bad0f8" name="Request 1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:48804/Info</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:info="http://info.ak.ru/" xmlns:con="http://connection.logger.ak.ru/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <info:messageByText>
+         <connection>
+            <con:fileName>/tmp/comp-java-logger.sqlite</con:fileName>
+         </connection>
+         <text>test</text>
+         <limit>20</limit>
+         <offset>0</offset>
+      </info:messageByText>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://info.ak.ru/Info/messageByTextRequest"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:testSuite id="7c1f0638-c6f5-43a8-8b33-fde8a2e816e1" name="TestSuite"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase id="78737bcc-258a-4da2-aa55-274fab19d064" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="TestCase" searchProperties="true"><con:settings/><con:testStep type="properties" name="Properties" id="2070a5b5-7c89-4133-b66f-f9879f138823"><con:settings/><con:config xsi:type="con:PropertiesStep" saveFirst="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:properties><con:property><con:name>fileName</con:name><con:value>/tmp/comp-java-logger.sqlite</con:value></con:property><con:property><con:name>object</con:name><con:value>SoapUI</con:value></con:property><con:property><con:name>text</con:name><con:value>test message</con:value></con:property><con:property><con:name>level</con:name><con:value>INFO</con:value></con:property></con:properties></con:config></con:testStep><con:testStep type="request" name="SOAP Request" id="867763bd-d385-439b-9517-6e13d270da06"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>InfoPortBinding</con:interface><con:operation>logSqlite</con:operation><con:request name="SOAP Request" id="60f9758f-e900-4a15-8e73-39fb4506a4b0"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:48804/Info</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:info="http://info.ak.ru/" xmlns:con="http://connection.logger.ak.ru/">
    <soapenv:Header/>
    <soapenv:Body>
       <info:logSqlite>

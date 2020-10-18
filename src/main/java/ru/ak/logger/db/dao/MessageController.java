@@ -22,15 +22,17 @@ import java.util.List;
 public class MessageController extends AbstractController<Message, Long> {
 
     private static final String SQL_CREATE = "INSERT INTO messages (period, id_level, id_object, text) VALUES (?, ?, ?, ?);";
-    private static final String SQL_SELECT_ALL = "SELECT\n" + "  messages.id AS id,\n"
-            + "  messages.period AS period,\n" + "  messages.id_level AS id_level,\n" + "  levels.name AS name_level,\n"
-            + "  messages.id_object AS id_object,\n" + "  objects.name AS name_object,\n" + "  messages.text AS text\n"
-            + "\n" + "FROM messages\n" + "  LEFT JOIN objects ON objects.id = id_object\n"
-            + "  LEFT JOIN levels ON levels.id = id_level\n" + "ORDER BY messages.period;";
-
     private static final String SQL_DELETE_ALL = "DELETE FROM messages";
 
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    static final String FIELD_ID = "id";
+    static final String FIELD_PERIOD = "period";
+    static final String FIELD_ID_OBJECT = "id_object";
+    static final String FIELD_NAME_OBJECT = "name_object";
+    static final String FIELD_ID_LEVEL = "id_level";
+    static final String FIELD_NAME_LEVEL = "name_level";
+    static final String FIELD_TEXT = "text";
+
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public MessageController(LoggerDataSource lds) {
         super(lds);
@@ -39,7 +41,7 @@ public class MessageController extends AbstractController<Message, Long> {
     @Override
     public Long create(Message object) throws SQLException {
 
-        Long id = null;
+        Long id;
 
         try (Connection connection = getLoggerDataSource().getConnection();
                 PreparedStatement ps = connection.prepareStatement(SQL_CREATE)) {
@@ -56,28 +58,6 @@ public class MessageController extends AbstractController<Message, Long> {
     }
 
     @Override
-    public DbRecords<Message> selectAll() throws SQLException {
-
-        List<Message> messages = new ArrayList<>();
-
-        try (Connection connection = getLoggerDataSource().getConnection();
-                PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL);
-                ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                try {
-                    messages.add(new Message(rs.getLong("id"), dateFormat.parse(rs.getString("period")),
-                            new ObjectLog(rs.getLong("id_object"), rs.getString("name_object")),
-                            new Level(rs.getLong("id_level"), rs.getString("name_level")), rs.getString("text")));
-                } catch (ParseException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }
-
-        return new DbRecords<>(messages);
-    }
-
-    @Override
     public void deleteAll() throws SQLException {
         try (Connection connection = getLoggerDataSource().getConnection();
                 PreparedStatement ps = connection.prepareStatement(SQL_DELETE_ALL)) {
@@ -85,13 +65,29 @@ public class MessageController extends AbstractController<Message, Long> {
         }
     }
 
+    /**
+     * Поиск сообщений, период которых попадает в указанный интервал
+     * @param from начало периода
+     * @param to окончание периода
+     * @param limit ограничение выборки данных
+     * @param offset смещение выборки
+     * @return Найденные сообщения по периоду
+     * @throws SQLException Чтение данныз из базы данных
+     * @throws ParseException Преобразование текста в дату
+     */
     public DbRecords<Message> findByPeriod(Date from, Date to, int limit, int offset) throws SQLException, ParseException {
         String sql = 
-            "SELECT\n" + " messages.id AS id,\n" + "  messages.period AS period,\n"
-            + "  messages.id_level AS id_level,\n" + "  levels.name AS name_level,\n"
-            + "  messages.id_object AS id_object,\n" + "  objects.name AS name_object,\n"
-            + "  messages.text AS text\n" + "\n" + "FROM messages\n"
-            + "  LEFT JOIN objects ON objects.id = id_object\n" + "  LEFT JOIN levels ON levels.id = id_level\n"
+            "SELECT\n"
+            + " messages.id AS id,\n"
+            + "  messages.period AS period,\n"
+            + "  messages.id_level AS id_level,\n"
+            + "  levels.name AS name_level,\n"
+            + "  messages.id_object AS id_object,\n"
+            + "  objects.name AS name_object,\n"
+            + "  messages.text AS text\n"
+            + "FROM messages\n"
+            + "  LEFT JOIN objects ON objects.id = id_object\n"
+            + "  LEFT JOIN levels ON levels.id = id_level\n"
             + "WHERE messages.period BETWEEN ? and ?\n" 
             + "ORDER BY messages.period\n"
             + "LIMIT ? OFFSET ?;\n";
@@ -108,14 +104,7 @@ public class MessageController extends AbstractController<Message, Long> {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    try {
-                        messages.add(new Message(rs.getLong("id"), dateFormat.parse(rs.getString("period")),
-                                new ObjectLog(rs.getLong("id_object"), rs.getString("name_object")),
-                                new Level(rs.getLong("id_level"), rs.getString("name_level")), rs.getString("text")));
-
-                    } catch (ParseException ex) {
-                        ex.printStackTrace();
-                    }
+                    messages.add(getMessage(rs));
                 }
             }
         }
@@ -139,5 +128,84 @@ public class MessageController extends AbstractController<Message, Long> {
         }
 
         return new DbRecords<>(messages, count);
+    }
+
+    /**
+     * Поиск текста в сообщениях, поиск без учета регистра по шаблону LIKE %value%
+     * @param text строка поиска
+     * @param limit ограничение выборки данных
+     * @param offset смещение выборки
+     * @return найденные сообщения
+     * @throws SQLException Чтение данных из БД
+     * @throws ParseException Преобразование текста в дату
+     */
+    public DbRecords<Message> findByText(String text, int limit, int offset)  throws SQLException, ParseException {
+        String sql =
+            "SELECT\n"
+            + "  messages.id AS id,\n"
+            + "  messages.period AS period,\n"
+            + "  messages.id_level AS id_level,\n"
+            + "  levels.name AS name_level,\n"
+            + "  messages.id_object AS id_object,\n"
+            + "  objects.name AS name_object,\n"
+            + "  messages.text AS text\n"
+            + "FROM messages\n"
+            + "  LEFT JOIN objects ON objects.id = id_object\n"
+            + "  LEFT JOIN levels ON levels.id = id_level\n"
+            + "WHERE UPPER(messages.text) LIKE ?\n"
+            + "ORDER BY messages.period\n"
+            + "LIMIT ? OFFSET ?;\n";
+
+        List<Message> messages = new ArrayList<>();
+
+        try (Connection connection = getLoggerDataSource().getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, "%" + text.toUpperCase() + "%");
+            ps.setInt(2, limit);
+            ps.setInt(3, offset);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    messages.add(getMessage(rs));
+                }
+            }
+        }
+
+        String sqlCount = "SELECT count(*) as count_records FROM messages WHERE UPPER(messages.text) LIKE ?;";
+
+        int count = 0;
+
+        try (Connection connection = getLoggerDataSource().getConnection();
+             PreparedStatement ps = connection.prepareStatement(sqlCount)) {
+
+            ps.setString(1, "%" + text.toUpperCase() + "%");
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    count = rs.getInt("count_records");
+                }
+            }
+        }
+
+        return new DbRecords<>(messages, count);
+    }
+
+    /**
+     * Создание экземпляра класса Message на основе данных БД
+     * @param rs ResultSet
+     * @return Message
+     * @throws SQLException Чтение данных из БД
+     * @throws ParseException Преобразоваие текста в дату
+     */
+    private Message getMessage(ResultSet rs) throws SQLException, ParseException {
+        return
+            new Message(
+                rs.getLong(FIELD_ID),
+                dateFormat.parse(rs.getString(FIELD_PERIOD)),
+                new ObjectLog(rs.getLong(FIELD_ID_OBJECT), rs.getString(FIELD_NAME_OBJECT)),
+                new Level(rs.getLong(FIELD_ID_LEVEL), rs.getString(FIELD_NAME_LEVEL)),
+                rs.getString(FIELD_TEXT));
+
     }
 }
