@@ -1,11 +1,9 @@
 package ru.ak.model;
 
-import javax.xml.bind.annotation.*;
-import java.io.Serializable;
+import javax.xml.bind.annotation.XmlElement;
 
-public class Response implements Serializable {
+public class Response {
 
-	private static final long serialVersionUID = -7004999904619722613L;
 	private Object object;
 	private boolean error;
 	private String description;
