@@ -24,6 +24,11 @@
 
         <maven-compiler.version>3.8.1</maven-compiler.version>
         <maven-assembly.version>3.1.1</maven-assembly.version>
+
+        <!-- SonarCloud -->
+        <sonar.projectKey>alexandrkakushin_comp-java-logger</sonar.projectKey>
+        <sonar.organization>alexandrkakushin</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
 
     <dependencies>
