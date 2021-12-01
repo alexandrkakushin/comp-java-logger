@@ -18,7 +18,7 @@
         <finalname>logger</finalname>
 
         <sqlite.version>3.36.0.1</sqlite.version>
-        <h2.version>1.4.200</h2.version>
+        <h2.version>2.0.202</h2.version>
         <dbcp2.version>2.8.0</dbcp2.version>
         <jaxws.version>2.3.4</jaxws.version>
 
